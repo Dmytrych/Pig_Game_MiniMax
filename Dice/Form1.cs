@@ -50,8 +50,7 @@ namespace Dice
         private void WinAlert(IPlayer winPlayer)
         {
             var form = new Form();
-            var congratulationLabel = new Label();
-            congratulationLabel.Text = winPlayer.Name + " Wins!!!!!";
+            var congratulationLabel = new Label() { Text = winPlayer.Name + " Wins!!!!!" };
             form.Controls.Add(congratulationLabel);
             form.Show();
             startButton_Click(null, null);

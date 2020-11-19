@@ -55,7 +55,6 @@ namespace Dice
         {
             if(TurnScoreControl.CurrentTurnPoints != 0)
             {
-                TurnControl.CurrentPlayer.Score += TurnScoreControl.CurrentTurnPoints;
                 TurnScoreControl.ClearTurnPoints();
                 TurnControl.Next();
             }
