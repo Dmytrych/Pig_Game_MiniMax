@@ -7,7 +7,7 @@ using System.Xml.Schema;
 
 namespace Dice
 {
-    interface IDiceRollResult
+    public interface IDiceRollResult
     {
         int Score { get;}
     }

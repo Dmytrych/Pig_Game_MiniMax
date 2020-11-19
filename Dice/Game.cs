@@ -25,7 +25,7 @@ namespace Dice
             TurnScoreControl = new TurnScoreManager(this);
         }
 
-        public void Roll()
+        public IDiceRollResult Roll()
         {
             var result = DiceRoller.RollDice(CubeSides);
 
@@ -49,6 +49,7 @@ namespace Dice
             {
                 Win(Player2);
             }
+            return result;
         }
 
         public void EndTurn()
