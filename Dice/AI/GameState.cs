@@ -11,7 +11,11 @@ namespace Dice
         public GameState PreviousState { get; set; }
         public List<GameState> AvaliableStates { get; private set; }
         private int currentPlayer = 1;
-        public float ChanceOfGetting { get; set; }
+        /// <summary>
+        /// Chance of not loosing in the next game always is pow(5/6, n),
+        /// where n is the count od wins in the current turn.
+        /// </summary>
+        public float NextStepNotLoseChance { get; set; }
         public int CurrentPlayer
         {
             get
@@ -30,7 +34,23 @@ namespace Dice
                 }
             }
         }
-        public int Player1_Score { get; set; }
-        public int Player2_Score { get; set; }
+        public int Player1Score { get; set; }
+        public int Player2Score { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="previousState">null if initial state</param>
+        /// <param name="player1Score"></param>
+        /// <param name="player2Score"></param>
+        /// <param name="chanceOfGetting">chance of having this state</param>
+        /// <param name="currentPlayerTurn">Takes only numbers 1 or 2, otherwise throws an exception</param>
+        public GameState(GameState previousState ,int player1Score, int player2Score, float nextStepNotLoseChance, int currentPlayerTurn)
+        {
+            PreviousState = previousState;
+            Player1Score = player1Score;
+            Player2Score = player2Score;
+            CurrentPlayer = currentPlayerTurn;
+            NextStepNotLoseChance = nextStepNotLoseChance;
+        }
     }
 }
