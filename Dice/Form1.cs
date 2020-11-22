@@ -18,14 +18,15 @@ namespace Dice
             InitializeComponent();
             startButton_Click(null, null);
         }
-
+        //Updates info screen
         public void UpdateGameInfo()
         {
             if(GameInstance != null)
             {
-                gameInfoBox.Text = GameInstance.GameState();
+                gameInfoBox.Text = GameInstance.GetGameState();
             }
         }
+        //Starts the new game
         private void startButton_Click(object sender, EventArgs e)
         {
             var player1 = new Player("Player1");
@@ -34,20 +35,21 @@ namespace Dice
             GameInstance.Win += WinAlert;
             UpdateGameInfo();
         }
-
+        //Rolls a dice
         private void diceRollButton_Click(object sender, EventArgs e)
         {
             var diceResult = GameInstance.Roll();
             SetDicePicture(diceResult);
             UpdateGameInfo();
         }
-
+        //Skips a turn
         private void nextTurnButton_Click(object sender, EventArgs e)
         {
             GameInstance.EndTurn();
             UpdateGameInfo();
         }
 
+        //Dice picture change
         private void SetDicePicture(IDiceRollResult number)
         {
             Image image;
@@ -74,7 +76,7 @@ namespace Dice
             }
             pictureBox1.Image = image;
         }
-
+        //Creates a pop-up window with congratulations
         private void WinAlert(IPlayer winPlayer)
         {
             var form = new Form();

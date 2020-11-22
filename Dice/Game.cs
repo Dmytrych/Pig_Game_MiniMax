@@ -24,7 +24,10 @@ namespace Dice
             TurnControl = new TurnManager(this);
             TurnScoreControl = new TurnScoreManager(this);
         }
-
+        /// <summary>
+        /// Rolls a dice
+        /// </summary>
+        /// <returns></returns>
         public IDiceRollResult Roll()
         {
             var result = DiceRoller.RollDice(CubeSides);
@@ -51,7 +54,13 @@ namespace Dice
             }
             return result;
         }
-
+        private static bool IsLoseNumber(int result, int maxLooseNumber)
+        {
+            return result <= maxLooseNumber;
+        }
+        /// <summary>
+        /// Ends the players turn.
+        /// </summary>
         public void EndTurn()
         {
             if(TurnScoreControl.CurrentTurnPoints != 0)
@@ -60,8 +69,10 @@ namespace Dice
                 TurnControl.Next();
             }
         }
-
-        public string GameState()
+        ///<summary>
+        ///Returns a string with all the actual game scores
+        ///</summary>
+        public string GetGameState()
         {
             var gameStatus = "";
 
@@ -73,10 +84,6 @@ namespace Dice
             return gameStatus;
         }
 
-        private static bool IsLoseNumber(int result, int maxLooseNumber)
-        {
-            return result <= maxLooseNumber;
-        }
         class TurnScoreManager
         {
             public Game Game { get; private set; }

@@ -8,7 +8,10 @@ namespace Dice
 {
     class GameState
     {
+        public GameState PreviousState { get; set; }
+        public List<GameState> AvaliableStates { get; private set; }
         private int currentPlayer = 1;
+        public float ChanceOfGetting { get; set; }
         public int CurrentPlayer
         {
             get
