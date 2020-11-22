@@ -11,6 +11,12 @@ namespace Dice.AI
     class BotOpponent
     {
         private GameState CurrentState { get; set; }
+
+        public BotOpponent()
+        {
+            CurrentState = new GameState(null, 0, 0, 5 / 6, 1);
+            CalculateNextGameStates(CurrentState);
+        }
         /// <summary>
         /// Recursive method of calculating the game states tree for Mini-Max algorythm
         /// </summary>
@@ -21,7 +27,7 @@ namespace Dice.AI
                 player2Score,
                 currentPlayerTurn = state.CurrentPlayer;
 
-            for (int diceRoll = 6; diceRoll > 0; diceRoll--)          //picking every possible number
+            for (int diceRoll = 6; diceRoll > 0; diceRoll--)    //picking every possible number
             {
                 player1Score = state.Player1Score;
                 player2Score = state.Player2Score;
@@ -40,17 +46,31 @@ namespace Dice.AI
                 }
                 else
                 {
-                    currentPlayerTurn = state.CurrentPlayer == 1 ? 2 : 1;   //if getting 1 - to next players turn
+                    currentPlayerTurn = SwitchPlayer(state.CurrentPlayer);   //if getting 1 - going to next players turn
+                    notLoseChance = 5 / 6;
                 }
 
                 var newState = new GameState(state, player1Score, player2Score, notLoseChance, currentPlayerTurn);
 
                 state.AvaliableStates.Add(newState);    //adding a current state to the tree
-                if(newState.Player1Score < 100 && newState.Player2Score < 100)  //calcualting tree branch for new state
+            }
+
+            currentPlayerTurn = SwitchPlayer(state.CurrentPlayer);
+            var skipTurnState = new GameState(state, state.Player1Score, state.Player2Score, 5 / 6, currentPlayerTurn);    //if player skips the turn
+            state.AvaliableStates.Add(skipTurnState);    //adding a new state to the tree
+
+            foreach(var gameState in state.AvaliableStates)     //for every found game state
+            {
+                if (gameState.Player1Score < 100 && gameState.Player2Score < 100)  //calcualting a solution tree branch
                 {
-                    CalculateNextGameStates(newState);
+                    CalculateNextGameStates(gameState);
                 }
             }
+        }
+
+        private static int SwitchPlayer(int currentPlayer)
+        {
+            return currentPlayer == 1 ? 2 : 1;
         }
         /// <summary>
         /// Evaluates the game state.
