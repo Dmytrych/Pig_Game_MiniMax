@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dice.AI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,6 +18,7 @@ namespace Dice
         {
             InitializeComponent();
             startButton_Click(null, null);
+            BotOpponent bot = new BotOpponent();
         }
         //Updates info screen
         public void UpdateGameInfo()

@@ -11,63 +11,94 @@ namespace Dice.AI
     class BotOpponent
     {
         private GameState CurrentState { get; set; }
-
+        private int CalculatingDepth { get; set; } = 10;
         public BotOpponent()
         {
-            CurrentState = new GameState(null, 0, 0, 5 / 6, 1);
-            CalculateNextGameStates(CurrentState);
+            float notGettingOneChance = 5f / 6f;
+            var startPlayer = 1;
+            var rollsDone = 0;
+            var initialTurn = new PlayerTurn(notGettingOneChance, startPlayer, rollsDone);
+            CurrentState = new GameState(null, 0, 0, initialTurn);
+            CalculateNextGameStatesRecursive(CurrentState, CalculatingDepth);
         }
-        /// <summary>
-        /// Recursive method of calculating the game states tree for Mini-Max algorythm
-        /// </summary>
-        public void CalculateNextGameStates(GameState state)
-        {
-            float notLoseChance = state.NextStepNotLoseChance * 5 / 6;
-            int player1Score,
-                player2Score,
-                currentPlayerTurn = state.CurrentPlayer;
 
-            for (int diceRoll = 6; diceRoll > 0; diceRoll--)    //picking every possible number
+        /// <summary>
+        /// Recursive method of calculating the game states tree for Mini-Max algorythm. 
+        /// If it's already calculated - calculates till gets the needed depth.
+        /// </summary>
+        private void CalculateNextGameStatesRecursive(GameState state, int depth)
+        {
+            if(depth == 0)
             {
-                player1Score = state.Player1Score;
-                player2Score = state.Player2Score;
-                
-                
-                if(diceRoll != 1)   //if not missed all points add score
+                return;
+            }
+            if(state.AvaliableStates.Count == 0)  //if it wasn't calculated
+            {
+                float notLoseChance = state.CurrentTurn.NextRollNotLoseChance * 5f / 6f;
+                int player1Score,
+                    player2Score,
+                    rollsDone,
+                    currentPlayerTurn = state.CurrentTurn.CurrentPlayer;
+
+                for (int diceRoll = 6; diceRoll > 0; diceRoll--)    //picking every possible number
                 {
-                    if (state.CurrentPlayer == 1)
+                    player1Score = state.Player1Score;
+                    player2Score = state.Player2Score;
+
+
+                    if (diceRoll != 1)   //if not missed all points add score
                     {
-                        player1Score += diceRoll;
+                        if (state.CurrentTurn.CurrentPlayer == 1)
+                        {
+                            player1Score += diceRoll;
+                        }
+                        else
+                        {
+                            player2Score += diceRoll;
+                        }
+                        rollsDone = state.CurrentTurn.RollsDone + 1;
                     }
                     else
                     {
-                        player2Score += diceRoll;
+                        currentPlayerTurn = SwitchPlayer(state.CurrentTurn.CurrentPlayer);   //if getting 1 - going to next players turn
+                        notLoseChance = 5f / 6f;  //and switching turn values to defaults
+                        rollsDone = 0;
                     }
+                    var newTurnInfo = new PlayerTurn(notLoseChance, currentPlayerTurn, rollsDone);
+                    var newState = new GameState(state, player1Score, player2Score, newTurnInfo);
+
+                    state.AvaliableStates.Add(newState);    //adding a current state to the tree
                 }
-                else
+
+                if (state.CurrentTurn.RollsDone > 0) //if alredy rolled a dice on this turn
                 {
-                    currentPlayerTurn = SwitchPlayer(state.CurrentPlayer);   //if getting 1 - going to next players turn
-                    notLoseChance = 5 / 6;
+                    currentPlayerTurn = SwitchPlayer(state.CurrentTurn.CurrentPlayer); //creating a turn skip case
+                    var turnInfo = new PlayerTurn(5f / 6f, currentPlayerTurn, 0);
+                    var skipTurnState = new GameState(state, state.Player1Score, state.Player2Score, turnInfo);    //if player skips the turn
+
+                    state.AvaliableStates.Add(skipTurnState);    //adding a new state to the tree
                 }
-
-                var newState = new GameState(state, player1Score, player2Score, notLoseChance, currentPlayerTurn);
-
-                state.AvaliableStates.Add(newState);    //adding a current state to the tree
             }
 
-            currentPlayerTurn = SwitchPlayer(state.CurrentPlayer);
-            var skipTurnState = new GameState(state, state.Player1Score, state.Player2Score, 5 / 6, currentPlayerTurn);    //if player skips the turn
-            state.AvaliableStates.Add(skipTurnState);    //adding a new state to the tree
-
-            foreach(var gameState in state.AvaliableStates)     //for every found game state
+            CalculateFurtherStates(state.AvaliableStates, depth - 1);
+        }
+        /// <summary>
+        /// Calculates further game states for each possible state of the given
+        /// </summary>
+        public void CalculateFurtherStates(List<GameState> states, int depth)
+        {
+            foreach (var gameState in states)     //for every found game state
             {
                 if (gameState.Player1Score < 100 && gameState.Player2Score < 100)  //calcualting a solution tree branch
                 {
-                    CalculateNextGameStates(gameState);
+                    CalculateNextGameStatesRecursive(gameState, depth);
+                }
+                else
+                {
+                    return;
                 }
             }
         }
-
         private static int SwitchPlayer(int currentPlayer)
         {
             return currentPlayer == 1 ? 2 : 1;
