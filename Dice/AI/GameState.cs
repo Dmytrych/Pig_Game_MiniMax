@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace Dice
 {
-    class GameState
+    public class GameState
     {
         public GameState PreviousState { get; set; }
         public List<GameState> AvaliableStates { get; private set; }
-        public PlayerTurn CurrentTurn { get; set; }
+        public PlayerTurn Turn { get; set; }
         public int Player1Score { get; set; }
         public int Player2Score { get; set; }
+        public int Value { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -27,7 +28,7 @@ namespace Dice
             PreviousState = previousState;
             Player1Score = player1Score;
             Player2Score = player2Score;
-            CurrentTurn = currentTurn;
+            Turn = currentTurn;
         }
 
         public void EraseStates()

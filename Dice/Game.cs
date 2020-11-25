@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Dice.AI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,15 +16,36 @@ namespace Dice
         public IPlayer Player1 { get; private set; }
         public IPlayer Player2 { get; private set; }
         private TurnManager TurnControl { get; set; }
+        public GameState CurrentState { get; set; }
         private TurnScoreManager TurnScoreControl { get; set; }
         public delegate void WinEventHandler(IPlayer player);
-        public event WinEventHandler Win;
+        public event WinEventHandler WinEvent;
+        public delegate void NextTurnEventHandler(GameState newState);
+        public event NextTurnEventHandler NextTurnEvent;
         public Game(IPlayer player1, IPlayer player2)
         {
             Player1 = player1;
             Player2 = player2;
             TurnControl = new TurnManager(this);
             TurnScoreControl = new TurnScoreManager(this);
+        }
+        public GameState ReturnGameState()
+        {
+            float notLooseChance = 5f / 6f;
+            int player = TurnControl.CurrentPlayer == Player1 ? 1 : 2,
+                rollsDone = 0,
+                deltaPoints = 0;
+
+            if (CurrentState != null && player == CurrentState.Turn.CurrentPlayer)
+            {
+                notLooseChance = CurrentState.Turn.NextRollNotLoseChance * 5f / 6f;
+                rollsDone = CurrentState.Turn.RollsDone + 1;
+            }
+
+            PlayerTurn turn = new PlayerTurn(notLooseChance, player, rollsDone, deltaPoints);
+            GameState state = new GameState(null, Player1.Score, Player2.Score, turn);
+            CurrentState = state;
+            return state;
         }
         /// <summary>
         /// Rolls a dice
@@ -46,12 +69,13 @@ namespace Dice
 
             if(Player1.Score >= WinPointQuantity)
             {
-                Win(Player1);
+                WinEvent(Player1);
             }
             else if(Player2.Score >= WinPointQuantity)
             {
-                Win(Player2);
+                WinEvent(Player2);
             }
+            NextTurnEvent(ReturnGameState());
             return result;
         }
         private static bool IsLoseNumber(int result, int maxLooseNumber)
@@ -67,6 +91,8 @@ namespace Dice
             {
                 TurnScoreControl.ClearTurnPoints();
                 TurnControl.Next();
+
+                NextTurnEvent(ReturnGameState());
             }
         }
         ///<summary>

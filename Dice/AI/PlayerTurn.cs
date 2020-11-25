@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Dice.AI
 {
-    class PlayerTurn
+    public class PlayerTurn
     {
         /// <summary>
         /// Chance of not loosing in the next game always is pow(5/6, n),
         /// where n is the count od wins in the current turn.
         /// </summary>
         public float NextRollNotLoseChance { get; set; }
+        public int DeltaPoints { get; set; }
         public int RollsDone { get; set; }
         private int currentPlayer = 1;
         public int CurrentPlayer
@@ -34,11 +35,12 @@ namespace Dice.AI
             }
         }
 
-        public PlayerTurn(float notLoseChance, int currentPlayer, int rollsDone)
+        public PlayerTurn(float notLoseChance, int currentPlayer, int rollsDone, int deltaPoints)
         {
             CurrentPlayer = currentPlayer;
             NextRollNotLoseChance = notLoseChance;
             RollsDone = rollsDone;
+            DeltaPoints = deltaPoints;
         }
     }
 }

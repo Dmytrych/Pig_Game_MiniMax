@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pcg;
 
 namespace Dice
 {
@@ -10,7 +11,7 @@ namespace Dice
     {
         public static IDiceRollResult RollDice(int sides)
         {
-            return new DiceRollResult(new Random().Next(sides));
+            return new DiceRollResult(new PcgRandom().Next(1, sides));
         }
     }
 }

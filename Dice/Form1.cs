@@ -14,11 +14,24 @@ namespace Dice
     public partial class Form1 : Form
     {
         public Game GameInstance { get; private set; }
+        public BotOpponent Bot { get; private set; }
         public Form1()
         {
+            Action onRoll, onEndTurn;
             InitializeComponent();
             startButton_Click(null, null);
-            BotOpponent bot = new BotOpponent();
+
+            onRoll = () => {
+                var diceResult = GameInstance.Roll();
+                SetDicePicture(diceResult);
+                UpdateGameInfo();
+            };
+            onEndTurn = () => {
+                GameInstance.EndTurn();
+                UpdateGameInfo();
+            };
+            Bot = new BotOpponent(onRoll, onEndTurn);
+            GameInstance.NextTurnEvent += Bot.PlayTurn;
         }
         //Updates info screen
         public void UpdateGameInfo()
@@ -34,7 +47,7 @@ namespace Dice
             var player1 = new Player("Player1");
             var player2 = new Player("Player2");
             GameInstance = new Game(player1, player2);
-            GameInstance.Win += WinAlert;
+            GameInstance.WinEvent += WinAlert;
             UpdateGameInfo();
         }
         //Rolls a dice
